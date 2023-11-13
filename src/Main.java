@@ -5,36 +5,36 @@ import java.util.List;
 
 public class Main {
 
-    //Public değişkenler tanımlanır:
+    //Public değişkenler tanımlanır.
     public static Random rand = new Random();
     public static int[] vertices;
     public static int[][] edges;
 
-    //Tabu listesi (kısa dönemli hafıza) tanımlanır:
+    //Tabu listesi (kısa dönemli hafıza) tanımlanır.
     public static List<Tabu> shortTermMemory = new ArrayList<>();
 
-    //Uzun dönemli hafıza tanımlanır:
+    //Uzun dönemli hafıza tanımlanır.
     public static List<boolean[]> longTermMemory = new ArrayList<>();
 
-    //En iyi çözüm tanımlanır:
+    //En iyi çözüm tanımlanır.
     public static boolean[] bestSolution;
 
     public static void main(String[] args) throws IOException {
 
-        //Çözülecek problem seçilir:
+        //Çözülecek problem seçilir.
         selectProblem();
 
-        //Başlangıç çözümü üretilir:
+        //Başlangıç çözümü üretilir.
         bestSolution = generateInitialSolution();
 
-        //Başlangıç çözümü uzun dönemli hafızaya alınır:
+        //Başlangıç çözümü uzun dönemli hafızaya alınır.
         longTermMemory.add(bestSolution);
 
-        //Başlangıç çözümünün ceza puanı ekrana basılır:
+        //Başlangıç çözümünün ceza puanı ekrana basılır.
         int penaltyPoint = evaluateSolution(bestSolution);
         System.out.println("Penalty point of initial solution: " + penaltyPoint + " \n___________________________");
 
-        //Durma şartı sağlanana kadar en iyi çözüm aranır:
+        //Durma şartı sağlanana kadar en iyi çözüm aranır.
         boolean[] candidateSolution;
         boolean [] currentSolution;
         List<boolean[]> neighbours;
@@ -44,50 +44,50 @@ public class Main {
             iteration++;
             System.out.println("Iteration number: " + (iteration+1));
 
-            //Komşu çözümler belirlenir:
+            //Komşu çözümler belirlenir.
             neighbours = generateNeighbours();
 
-            //En iyi komşu çözüm seçilerek aday çözüm yapılır:
+            //En iyi komşu çözüm seçilerek aday çözüm yapılır.
             candidateSolution = selectBestNeighbour(neighbours);
 
-            //Aday çözüm tabu değilse veya tabu yıkma kriterini karşılıyorsa aşağıdaki adımlara geçilir:
+            //Aday çözüm tabu değilse veya tabu yıkma kriterini karşılıyorsa aşağıdaki adımlara geçilir.
             if (!checkTabuCondition(candidateSolution) || checkTabuBreak(candidateSolution)){
 
-                //Aday çözüm mevcut çözüm yapılır:
+                //Aday çözüm mevcut çözüm yapılır.
                 currentSolution = candidateSolution;
 
-                //Aday çözüm en az en iyi çözüm kadar iyiyse, en iyi çözüm yapılır:
+                //Aday çözüm en az en iyi çözüm kadar iyiyse, en iyi çözüm yapılır.
                 if (evaluateSolution(candidateSolution) <= evaluateSolution(bestSolution)) {
                     bestSolution = candidateSolution;
                 }
 
-                //İterasyondaki en iyi çözümün ceza puanı ekrana basılır:
+                //İterasyondaki en iyi çözümün ceza puanı ekrana basılır.
                 penaltyPoint = evaluateSolution(bestSolution);
                 System.out.println("Penalty point of best solution: " + penaltyPoint + " \n___________________________");
 
-                //Eklenmesi gereken tabu varsa tabu listesi güncellenir:
+                //Eklenmesi gereken tabu varsa tabu listesi güncellenir.
                 updateTabuList(currentSolution);
 
-                //En iyi çözüm uzun dönemli hafızaya eklenir:
+                //En iyi çözüm uzun dönemli hafızaya eklenir.
                 longTermMemory.add(bestSolution);
             }
         }
 
-        //Nihai çözümün ceza puanı ekrana basılır:
+        //Nihai çözümün ceza puanı ekrana basılır.
         penaltyPoint = evaluateSolution(bestSolution);
         System.out.println("Penalty point of ultimate solution: " + penaltyPoint + " \n___________________________");
     }
 
-    //Her kenarın iki ucundan rastgele bir düğüm seçilerek başlangıç çözümü üretilir:
+    //Her kenarın iki ucundan rastgele bir düğüm seçilerek başlangıç çözümü üretilir.
     public static boolean[] generateInitialSolution(){
 
-        //Problemde verilen grafiğin bütün kenarları dolaşılır, her bir kenarın iki ucundaki düğümlerden bir tanesi rastgele seçilir:
+        //Problemde verilen grafiğin bütün kenarları dolaşılır, her bir kenarın iki ucundaki düğümlerden bir tanesi rastgele seçilir.
         List<Integer> traversedVertices = new ArrayList<>();
         for(int i=0; i<edges.length; i++){
             traversedVertices.add(edges[i][rand.nextInt(2)]);
         }
 
-        //Rastgele seçilirken yinelenen düğümlerin çıkarılır, işaretlenecek düğümler belirlenir:
+        //Rastgele seçilirken yinelenen düğümlerin çıkarılır, işaretlenecek düğümler belirlenir.
         List<Integer> selectedVertices = new ArrayList<>();
         for(int i=0; i<traversedVertices.size(); i++){
             boolean exist = false;
@@ -100,7 +100,7 @@ public class Main {
             if (!exist)selectedVertices.add(traversedVertices.get(i));
         }
 
-        //İşaretlenecek düğümler true, diğer düğümler false olacak şekilde set edilerek, başlangıç çözümü oluşturulur:
+        //İşaretlenecek düğümler true, diğer düğümler false olacak şekilde set edilerek, başlangıç çözümü oluşturulur.
         boolean[] initialSolution = new boolean[vertices.length];
         for(int i=0; i<vertices.length; i++){
             boolean exist = false;
@@ -117,7 +117,7 @@ public class Main {
         return initialSolution;
     }
 
-    //En iyi çözümün rastgele bir düğümü değiştirilerek komşu çözüm listesi oluşturulur:
+    //En iyi çözümün rastgele bir düğümü değiştirilerek komşu çözüm listesi oluşturulur.
     public static List<boolean[]> generateNeighbours(){
         boolean[] candidate;
         List<boolean[]> neighbours = new ArrayList<>();
@@ -132,7 +132,7 @@ public class Main {
         return neighbours;
     }
 
-    //Komşu çözüm listesindeki en iyi komşu belirlenir:
+    //Komşu çözüm listesindeki en iyi komşu belirlenir.
     public static boolean[] selectBestNeighbour(List<boolean[]> neighbours){
         boolean[] bestNeighbour = neighbours.get(0);
         for(int i=1; i<neighbours.size(); i++) {
@@ -145,14 +145,14 @@ public class Main {
         return bestNeighbour;
     }
 
-    //Aday çözümdeki değişikliğin tabu listesinde olup olmadığına bakılır:
+    //Aday çözümdeki değişikliğin tabu listesinde olup olmadığına bakılır.
     public static boolean checkTabuCondition(boolean[] candidateSolution){
         boolean tabu = false;
         for(int i=0; i<shortTermMemory.size(); i++){
             int vertexPlace = shortTermMemory.get(i).getVertexPlace();
             boolean changedTo = shortTermMemory.get(i).getChangedTo();
 
-            //Yapılan değişikliğin tabu listesinde olup olmadığına bakılır:
+            //Yapılan değişikliğin tabu listesinde olup olmadığına bakılır.
             if(bestSolution[vertexPlace]==candidateSolution[vertexPlace]){
                 if(bestSolution[vertexPlace]==!changedTo && (candidateSolution[vertexPlace])==changedTo)
                     tabu = true;
@@ -163,10 +163,10 @@ public class Main {
         return tabu;
     }
 
-    //Aday çözümün tabu yıkma kriterini sağlayıp sağlamadığına bakılır:
+    //Aday çözümün tabu yıkma kriterini sağlayıp sağlamadığına bakılır.
     public static boolean checkTabuBreak(boolean[] candidateSolution){
 
-        //Aday çözüm en az en iyi çözüm kadar iyiyse, tabu yıkma kriterini sağlamış sayılır:
+        //Aday çözüm en az en iyi çözüm kadar iyiyse, tabu yıkma kriterini sağlamış sayılır.
         boolean breakTabu = false;
         if(evaluateSolution(candidateSolution)<evaluateSolution(bestSolution)){
             breakTabu = true;
@@ -175,17 +175,17 @@ public class Main {
         return breakTabu;
     }
 
-    //En iyi çözümde değişiklik olduysa, tabu listesi güncellenir:
+    //En iyi çözümde değişiklik olduysa, tabu listesi güncellenir.
     public static void updateTabuList(boolean[] newBestSolution){
         for(int i=0; i<vertices.length; i++){
             if(bestSolution[i]!=newBestSolution[i]){
 
-                //Tabu listesindeki eleman sayısı problemdeki düğüm sayısının 15'te birine ulaşmışsa, ilk eleman tabu listesinden çıkarılır:
+                //Tabu listesindeki eleman sayısı problemdeki düğüm sayısının 15'te birine ulaşmışsa, ilk eleman tabu listesinden çıkarılır.
                 if (shortTermMemory.size()/15==vertices.length) {
                     shortTermMemory.remove(0);
                 }
 
-                //Yeni tabu, tabu listesine eklenir:
+                //Yeni tabu, tabu listesine eklenir.
                 Tabu tabu = new Tabu();
                 tabu.setVertexPlace(i);
                 tabu.setChangedTo(newBestSolution[i]);
@@ -195,10 +195,10 @@ public class Main {
         }
     }
 
-    //Gelen çözüm grafikteki tüm kenarlara ulaşılma durumu ve örtülmüş düğüm sayısına göre değerlendirilir:
+    //Gelen çözüm grafikteki tüm kenarlara ulaşılma durumu ve örtülmüş düğüm sayısına göre değerlendirilir.
     public static int evaluateSolution (boolean[] solution){
 
-        //Çözümdeki işaretli düğümlerin listesi çıkarılır:
+        //Çözümdeki işaretli düğümlerin listesi çıkarılır.
         List<Integer> markedVertices = new ArrayList<>();
         for(int i=0; i<vertices.length; i++){
             if (solution[i]){
@@ -207,7 +207,7 @@ public class Main {
             }
         }
 
-        //Çözümün grafikteki tüm kenarlara ulaşıp ulaşmadığına bakılır:
+        //Çözümün grafikteki tüm kenarlara ulaşıp ulaşmadığına bakılır.
         boolean graphCovered = true;
         for(int i=0; i<edges.length; i++){
             boolean edgeCovered = false;
@@ -223,21 +223,21 @@ public class Main {
             }
         }
 
-        //Çözüm tüm kenarlara ulaşmıyorsa, çözüme problemdeki düğüm sayısının 10 katı kadar ceza puanı verilir:
+        //Çözüm tüm kenarlara ulaşmıyorsa, çözüme problemdeki düğüm sayısının 10 katı kadar ceza puanı verilir.
         int penaltyPoint;
         if (graphCovered) penaltyPoint = 0;
         else penaltyPoint = vertices.length * 10;
 
-        //Ceza puanı, çözümde seçili düğüm sayısı kadar arttırılır:
+        //Ceza puanı, çözümde seçili düğüm sayısı kadar arttırılır.
         penaltyPoint = penaltyPoint + markedVertices.size();
 
         return penaltyPoint;
     }
 
-    //Çözülecek problem seçilir:
+    //Çözülecek problem seçilir.
     public static void selectProblem() throws IOException {
 
-        //Kullanıcıdan dosya seçmesi istenir:
+        //Kullanıcıdan dosya seçmesi istenir.
         System.out.println("Lütfen bir dosya seçiniz: ");
         int selectedIndex = 1;
         File directory = new File("res".concat(File.separator));
@@ -285,10 +285,10 @@ public class Main {
         }
     }
 
-    //İterasyonun durma şartı kontrol edilir:
+    //İterasyonun durma şartı kontrol edilir.
     public static boolean checkStopCondition(){
 
-        //En iyi çözümün ceza puanı, problemdeki düğüm sayısının 15'te biri kadar iterasyon boyunca sabit kaldıysa, durma şartı sağlanmış sayılır:
+        //En iyi çözümün ceza puanı, problemdeki düğüm sayısının 15'te biri kadar iterasyon boyunca sabit kaldıysa, durma şartı sağlanmış sayılır.
         boolean stop = true;
         if (longTermMemory.size()>=vertices.length/15){
             for(int i=longTermMemory.size()-vertices.length/15; i<longTermMemory.size()-1; i++){
